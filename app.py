@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import json
 import os
+import re
 from openai import OpenAI
 
 # ── Page config ──────────────────────────────────────────────────────────────
@@ -133,6 +134,14 @@ def hs_associate_contact_deal(token, contact_id, deal_id):
         headers={"Authorization": f"Bearer {token}"}
     )
 
+# ── JSON helpers ──────────────────────────────────────────────────────────────
+def clean_json(text):
+    """Strip markdown code fences from JSON text."""
+    text = re.sub(r'^```json\s*', '', text.strip())
+    text = re.sub(r'^```\s*', '', text)
+    text = re.sub(r'```$', '', text.strip())
+    return text.strip()
+
 # ── OpenAI agent ──────────────────────────────────────────────────────────────
 def run_agent(company_name, website, contact_name, contact_title):
     client = OpenAI(api_key=OPENAI_KEY)
@@ -164,7 +173,7 @@ Return ONLY valid JSON, no markdown, no explanation."""
         )
     
     try:
-        enrichment = json.loads(enrich_resp.choices[0].message.content)
+        enrichment = json.loads(clean_json(enrich_resp.choices[0].message.content))
     except:
         enrichment = {"summary": enrich_resp.choices[0].message.content, "estimated_units": 0, "company_size": "unknown", "pain_points": [], "obligo_fit_signals": [], "markets": [], "property_types": [], "tech_signals": []}
 
@@ -172,11 +181,17 @@ Return ONLY valid JSON, no markdown, no explanation."""
     score_prompt = f"""You are a GTM qualification agent for Obligo, a fintech that replaces security deposits with a fee-based model.
 
 Ideal Obligo customer profile:
-- Property managers or landlords with 50+ units
+- Property managers or landlords with 50+ units (ESPECIALLY 5000+ units = enterprise = HIGH PRIORITY)
 - Operate in competitive rental markets (major metros)
 - Want to attract renters with deposit-free leasing
 - Currently losing deals to competitors offering deposit alternatives
 - Use modern property management software
+
+SCORING GUIDELINES:
+- Enterprise companies (5000+ units): Score 80-95 — they have massive unit counts, complex operations, and are losing deals to deposit alternatives
+- Mid-market (500-5000 units): Score 60-80 — good fit, proven operations
+- Small (<500 units): Score 40-60 — potential but lower priority
+Adjust based on market competitiveness and pain points identified.
 
 Score this company 0-100 for Obligo fit and return JSON:
 - score: number (0-100)
@@ -188,7 +203,7 @@ Score this company 0-100 for Obligo fit and return JSON:
 Company data:
 {json.dumps(enrichment, indent=2)}
 
-Return ONLY valid JSON."""
+Return ONLY valid JSON, no markdown."""
 
     with st.spinner(""):
         score_resp = client.chat.completions.create(
@@ -198,7 +213,7 @@ Return ONLY valid JSON."""
         )
 
     try:
-        scoring = json.loads(score_resp.choices[0].message.content)
+        scoring = json.loads(clean_json(score_resp.choices[0].message.content))
     except:
         scoring = {"score": 50, "tier": "warm", "reasoning": score_resp.choices[0].message.content, "recommended_action": "nurture sequence", "key_talking_points": []}
 
