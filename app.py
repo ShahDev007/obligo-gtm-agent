@@ -227,6 +227,7 @@ Write a personalized cold outbound email to this contact. The email should:
 - Have a single soft CTA (15 min call)
 - Sound human, not like a template
 - NO subject line needed, just the email body
+- End with exactly "Best," on its own line — no name, no contact info, no placeholders after it
 
 Contact: {contact_name}, {contact_title} at {company_name}
 Company summary: {enrichment.get('summary', '')}
@@ -314,6 +315,7 @@ if run and company_name and website:
         markets = enrichment.get('markets', [])
         ptypes  = enrichment.get('property_types', [])
         tech    = enrichment.get('tech_signals', [])
+        pain    = enrichment.get('pain_points', [])
 
         if markets:
             tags = " ".join([f'<span class="tag tag-blue">{m}</span>' for m in markets[:4]])
@@ -324,6 +326,9 @@ if run and company_name and website:
         if tech:
             tags = " ".join([f'<span class="tag tag-blue">{t}</span>' for t in tech[:3]])
             st.markdown(f"**Tech signals** {tags}", unsafe_allow_html=True)
+        if pain:
+            tags = " ".join([f'<span class="tag tag-orange">{p}</span>' for p in pain[:5]])
+            st.markdown(f"**Pain points** {tags}", unsafe_allow_html=True)
 
         units = enrichment.get('estimated_units', 0)
         size  = enrichment.get('company_size', '—')
@@ -334,20 +339,23 @@ if run and company_name and website:
     with c2:
         score = scoring.get('score', 0)
         tier  = scoring.get('tier', 'warm')
-        score_cls = "score-good" if score >= 75 else ("score-mid" if score >= 50 else "score-low")
-        tier_tag  = "tag-green" if tier == "hot" else ("tag-orange" if tier == "warm" else "tag-red")
-        action    = scoring.get('recommended_action', '—')
+        score_color = "#1a6b3c" if score >= 75 else ("#b8600a" if score >= 50 else "#c0392b")
+        tier_bg     = "#edf7f2" if tier == "hot" else ("#fef6ec" if tier == "warm" else "#fdf0ee")
+        tier_fg     = "#1a6b3c" if tier == "hot" else ("#b8600a" if tier == "warm" else "#c0392b")
+        action      = scoring.get('recommended_action', '—')
 
         st.markdown(f"""
-        <div class="step-card">
-          <div class="step-label">Step 2 — Fit Score</div>
-          <div class="score-big {score_cls}">{score}</div>
-          <div style="margin:6px 0"><span class="tag {tier_tag}">{tier.upper()}</span></div>
-          <div style="font-size:.8rem;font-weight:600;margin:10px 0 4px">Recommended action</div>
-          <div style="font-size:.85rem;color:#1a3a5c;font-weight:600">{action.title()}</div>
-          <div class="reasoning-box">{scoring.get('reasoning','')}</div>
-        </div>
-        """, unsafe_allow_html=True)
+<div class="step-card">
+  <div class="step-label">Step 2 — Fit Score</div>
+  <div style="font-size:3rem;font-weight:700;line-height:1;color:{score_color};margin-bottom:8px">{score}</div>
+  <div style="margin-bottom:10px">
+    <span style="display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:.65rem;padding:3px 8px;border-radius:4px;background:{tier_bg};color:{tier_fg};font-weight:500">{tier.upper()}</span>
+  </div>
+  <div style="font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#6b6860;margin-bottom:4px">Recommended action</div>
+  <div style="font-size:.9rem;color:#1a3a5c;font-weight:700;margin-bottom:10px">{action.title()}</div>
+  <div class="reasoning-box">{scoring.get('reasoning','')}</div>
+</div>
+""", unsafe_allow_html=True)
 
         st.markdown("**Key talking points**")
         for pt in scoring.get('key_talking_points', []):
@@ -359,13 +367,6 @@ if run and company_name and website:
         st.markdown(f"**Re:** {company_name}")
         st.markdown(f'<div class="email-box">{email_body}</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # ── Pain points ───────────────────────────────────────────────────────────
-    st.markdown("**Identified pain points**")
-    pain_cols = st.columns(len(enrichment.get('pain_points', ['—']))  or 1)
-    for i, pain in enumerate(enrichment.get('pain_points', [])):
-        with pain_cols[i % len(pain_cols)]:
-            st.markdown(f'<span class="tag tag-orange">{pain}</span>', unsafe_allow_html=True)
 
     # ── Step 4: HubSpot push ──────────────────────────────────────────────────
     st.divider()
