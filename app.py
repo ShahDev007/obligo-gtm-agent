@@ -256,13 +256,9 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Sidebar config ────────────────────────────────────────────────────────────
+# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### ⚙️ Configuration")
-    st.caption("Keys are loaded from Streamlit secrets. Override here for testing.")
-    openai_override = st.text_input("OpenAI API Key (optional override)", type="password", placeholder="sk-proj-...")
-    hs_override     = st.text_input("HubSpot Token (optional override)", type="password", placeholder="pat-na2-...")
-    push_to_hs      = st.toggle("Push results to HubSpot", value=True)
+    push_to_hs = st.toggle("Push results to HubSpot", value=True)
     st.divider()
     st.markdown("### 📋 How it works")
     st.markdown("""
@@ -272,8 +268,8 @@ with st.sidebar:
 4. **Sync** — Pushes contact + deal + score into HubSpot automatically
 """)
 
-effective_openai = openai_override or OPENAI_KEY
-effective_hs     = hs_override or HS_TOKEN
+effective_openai = OPENAI_KEY
+effective_hs     = HS_TOKEN
 
 # ── Input form ────────────────────────────────────────────────────────────────
 st.markdown("### Target account")
@@ -289,7 +285,7 @@ with col2:
 run = st.button("▶ Run Agent", type="primary", disabled=not (company_name and website and contact_name and contact_title and effective_openai))
 
 if not effective_openai:
-    st.warning("Add your OpenAI API key in the sidebar or Streamlit secrets to run the agent.")
+    st.warning("OpenAI API key not found. Add OPENAI_API_KEY to your Streamlit secrets.")
 
 # ── Agent execution ───────────────────────────────────────────────────────────
 if run and company_name and website:
