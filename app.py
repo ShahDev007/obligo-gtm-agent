@@ -276,11 +276,11 @@ st.markdown("### Target account")
 
 col1, col2 = st.columns(2)
 with col1:
-    company_name  = st.text_input("Company name", placeholder="Greystar Real Estate Partners")
-    contact_name  = st.text_input("Contact name", placeholder="Sarah Mitchell")
+    company_name  = st.text_input("Company name")
+    contact_name  = st.text_input("Contact name")
 with col2:
-    website       = st.text_input("Website", placeholder="greystar.com")
-    contact_title = st.text_input("Contact title", placeholder="VP of Operations")
+    website       = st.text_input("Website")
+    contact_title = st.text_input("Contact title")
 
 run = st.button("▶ Run Agent", type="primary", disabled=not (company_name and website and contact_name and contact_title and effective_openai))
 
