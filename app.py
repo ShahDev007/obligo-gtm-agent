@@ -253,7 +253,7 @@ st.markdown("""
 <div class="agent-header">
   <h1>🏢 Obligo GTM Agent</h1>
   <p>ai-powered lead enrichment · fit scoring · personalized outreach · hubspot sync</p>
-  <p style="margin-top:10px;font-size:0.75rem;opacity:0.8;">Built with <strong style="color:white;">Claude Code</strong> &nbsp;·&nbsp; <a href="https://github.com/shahdev007/obligo-gtm-agent/blob/main/app.py" target="_blank" style="color:white;text-decoration:underline;">GitHub — view source ↗</a></p>
+  <p style="margin-top:10px;font-size:0.75rem;">Built with <strong style="color:#f97316;">Claude Code</strong> &nbsp;·&nbsp; <a href="https://github.com/shahdev007/obligo-gtm-agent/blob/main/app.py" target="_blank" style="color:#f97316;text-decoration:underline;">GitHub — view source ↗</a></p>
 </div>
 """, unsafe_allow_html=True)
 
