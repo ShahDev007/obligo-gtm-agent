@@ -252,7 +252,7 @@ Write ONLY the email body, no subject line, no labels."""
 st.markdown("""
 <div class="agent-header">
   <h1>🏢 Obligo GTM Agent</h1>
-  <p>ai-powered lead enrichment · fit scoring · personalized outreach · hubspot sync</p>
+  <p>ai-powered lead enrichment · fit scoring · personalized outreach · hubspot sync &nbsp;·&nbsp; <a href="https://github.com/ShahDev007/obligo-gtm-agent" target="_blank" style="color:rgba(255,255,255,0.5);text-decoration:none;">GitHub ↗</a></p>
 </div>
 """, unsafe_allow_html=True)
 
